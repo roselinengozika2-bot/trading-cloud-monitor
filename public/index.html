@@ -2,102 +2,241 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trading Cloud Monitor</title>
 <style>
-:root{--bg:#080d14;--card:#101923;--card2:#17222f;--border:#263646;--text:#e8eef5;--muted:#8fa1b3;--green:#00d59a;--red:#ff5c6c;--yellow:#f4bd4f}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;padding:18px}
-header{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
-h1{margin:0;font-size:25px}.sub{color:var(--muted);font-size:12px;margin-top:5px}.status{display:flex;gap:8px;flex-wrap:wrap}
-.pill{padding:7px 11px;border:1px solid var(--border);border-radius:20px;font-size:11px;color:var(--muted);background:var(--card)}
-.on{color:var(--green);border-color:#176e58}.warn{color:var(--yellow);border-color:#765a1e}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.full{grid-column:1/-1}
-.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}.title{font-size:11px;color:var(--muted);font-weight:bold;text-transform:uppercase;letter-spacing:.1em;margin-bottom:13px}
-.pair{border:1px solid var(--border);background:var(--card2);border-radius:11px;padding:14px;margin-bottom:10px}.pair:last-child{margin-bottom:0}
-.pairtop{display:flex;justify-content:space-between;align-items:center}.name{font-weight:bold;font-family:monospace;font-size:15px}
-.signal{font-weight:bold;font-size:13px;padding:5px 9px;border-radius:7px}.buy{color:var(--green);background:#07382d}.sell{color:var(--red);background:#3a1119}.wait{color:var(--yellow);background:#3a2d0c}.offline{color:var(--muted);background:#202a34}
-.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:11px}.metric{background:#0c141d;border-radius:8px;padding:8px}.metric b{display:block;font-family:monospace;font-size:12px}.metric span{font-size:9px;color:var(--muted)}
-.analysis{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.item{background:var(--card2);padding:9px;border-radius:8px;font-size:11px}.item span{color:var(--muted)}
-.news{border-left:3px solid var(--red);padding:12px;background:var(--card2);border-radius:8px;margin-bottom:8px}.phase{font-size:13px;font-weight:bold;color:var(--yellow);margin-bottom:5px}.small{font-size:11px;color:var(--muted);line-height:1.5}
-button{border:0;border-radius:8px;padding:9px 13px;background:var(--green);font-weight:bold;cursor:pointer}.buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-pre{white-space:pre-wrap;word-break:break-word;font-size:10px;color:var(--muted)}
-@media(max-width:650px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.metrics{grid-template-columns:repeat(2,1fr)}.analysis{grid-template-columns:1fr}}
+:root{
+  --bg:#050914;
+  --panel:rgba(12,20,36,.78);
+  --panel2:rgba(18,29,49,.82);
+  --line:rgba(148,163,184,.16);
+  --text:#e8eef8;
+  --muted:#8fa1ba;
+  --green:#22e6a7;
+  --red:#ff5c72;
+  --yellow:#ffc857;
+  --blue:#63a8ff;
+  --purple:#a78bfa;
+  --cyan:#35d6ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:var(--bg)}
+body{
+  overflow-x:hidden;
+  background:
+    radial-gradient(circle at 15% 10%,rgba(53,214,255,.12),transparent 28%),
+    radial-gradient(circle at 85% 18%,rgba(167,139,250,.12),transparent 28%),
+    radial-gradient(circle at 50% 100%,rgba(34,230,167,.08),transparent 30%),
+    linear-gradient(135deg,#040711 0%,#07101f 48%,#050914 100%);
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.23;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:42px 42px;
+  mask-image:linear-gradient(to bottom,black,transparent 88%);
+}
+.container{width:min(1180px,94%);margin:auto;padding:22px 0 45px;position:relative}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px}
+.brand{display:flex;align-items:center;gap:13px}
+.logo{
+  width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:23px;
+  background:linear-gradient(135deg,rgba(34,230,167,.2),rgba(53,214,255,.16));
+  border:1px solid rgba(53,214,255,.25);box-shadow:0 0 28px rgba(53,214,255,.12)
+}
+h1{font-size:21px;margin:0;letter-spacing:.3px}
+.subtitle{font-size:12px;color:var(--muted);margin-top:3px}
+.status-pill{display:flex;align-items:center;gap:8px;padding:9px 13px;border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:999px;font-size:12px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}
+.hero{
+  padding:24px;border:1px solid rgba(99,168,255,.18);border-radius:24px;
+  background:linear-gradient(135deg,rgba(14,27,48,.88),rgba(10,17,31,.72));
+  box-shadow:0 20px 70px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.04);
+  margin-bottom:18px;position:relative;overflow:hidden
+}
+.hero:after{content:"";position:absolute;width:240px;height:240px;border-radius:50%;right:-80px;top:-110px;background:rgba(53,214,255,.08);filter:blur(4px)}
+.hero-row{display:flex;justify-content:space-between;align-items:center;gap:20px;position:relative;z-index:1}
+.hero h2{margin:0;font-size:27px}.hero p{margin:7px 0 0;color:var(--muted);font-size:13px}
+.controls{display:flex;gap:9px;flex-wrap:wrap}
+button{
+  border:0;border-radius:12px;padding:11px 15px;color:#04100d;font-weight:800;cursor:pointer;
+  background:linear-gradient(135deg,var(--green),#5cf5cb);box-shadow:0 8px 24px rgba(34,230,167,.13)
+}
+button.secondary{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--line);box-shadow:none}
+button:disabled{opacity:.55;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.card{
+  border:1px solid var(--line);background:var(--panel);border-radius:22px;padding:18px;
+  box-shadow:0 15px 50px rgba(0,0,0,.2);backdrop-filter:blur(14px)
+}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px}
+.pair{font-size:18px;font-weight:850;display:flex;align-items:center;gap:8px}
+.updated{font-size:10px;color:var(--muted)}
+.signal{
+  padding:12px 15px;border-radius:15px;border:1px solid var(--line);margin-bottom:14px;
+  display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.025)
+}
+.signal .big{font-size:22px;font-weight:900}.wait{color:var(--yellow)}.buy{color:var(--green)}.sell{color:var(--red)}
+.score{font-size:12px;color:var(--muted)}.score b{color:var(--text);font-size:17px}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}
+.metric{padding:12px;border-radius:14px;background:rgba(3,10,20,.5);border:1px solid rgba(148,163,184,.09)}
+.metric span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px}
+.metric strong{font-size:14px;word-break:break-word}
+.tf{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:14px 0}
+.tfbox{padding:12px;border-radius:14px;background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.015));border:1px solid var(--line)}
+.tfbox .label{font-size:10px;color:var(--muted);letter-spacing:.8px}.tfbox .trend{font-weight:900;margin-top:5px;font-size:13px}
+.bull{color:var(--green)}.bear{color:var(--red)}.neutral{color:var(--yellow)}.unknown{color:var(--muted)}
+.section-title{font-size:11px;color:#a9bad1;text-transform:uppercase;letter-spacing:1.2px;margin:15px 0 9px}
+.analysis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.item{display:flex;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:10px;background:rgba(255,255,255,.025)}
+.item span{color:var(--muted);font-size:11px}.item b{font-size:11px;text-align:right}
+.news{margin-top:13px;padding:12px;border-radius:13px;border:1px solid rgba(255,200,87,.16);background:rgba(255,200,87,.05)}
+.news strong{color:var(--yellow);font-size:11px}.news div{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.45}
+.reason{margin-top:13px;padding:12px;border-radius:13px;background:rgba(99,168,255,.05);border:1px solid rgba(99,168,255,.12);font-size:11px;line-height:1.5;color:#b9c9dd}
+.overview{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.stat{padding:15px;border-radius:16px;background:var(--panel);border:1px solid var(--line)}.stat span{font-size:10px;color:var(--muted);text-transform:uppercase}.stat strong{display:block;margin-top:7px;font-size:18px}
+.footer{margin-top:18px;text-align:center;color:#6f819a;font-size:10px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.overview{grid-template-columns:repeat(2,1fr)}.hero-row{align-items:flex-start;flex-direction:column}.metrics{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:430px){.container{width:92%}.hero{padding:18px}.card{padding:14px}.analysis{grid-template-columns:1fr}.tf{grid-template-columns:1fr}.overview{gap:8px}.stat{padding:12px}}
 </style>
 </head>
 <body>
-<header>
-<div><h1>📡 Trading Cloud Monitor</h1><div class="sub">12H + 1H + 5M Multi-Timeframe Signal Engine</div></div>
-<div class="status"><div id="online" class="pill">● Checking...</div><div id="market" class="pill">Market...</div><div class="pill">XAU/USD · GBP/JPY</div></div>
-</header>
+<div class="container">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">⌁</div>
+      <div><h1>TRADING CLOUD MONITOR</h1><div class="subtitle">12H → 1H → 5M • SMC • FVG • News Protection</div></div>
+    </div>
+    <div class="status-pill"><span class="dot" id="onlineDot"></span><span id="onlineText">CONNECTING</span></div>
+  </div>
 
-<div class="grid">
-<section class="card full"><div class="title">System Status</div>
-<div class="metrics">
-<div class="metric"><b id="lastScan">—</b><span>LAST SCAN</span></div>
-<div class="metric"><b id="updated">—</b><span>UPDATED</span></div>
-<div class="metric"><b id="pairCount">2</b><span>PAIRS</span></div>
-<div class="metric"><b id="apiStatus">—</b><span>API</span></div>
-</div>
-<div class="buttons"><button onclick="scanNow()">↻ Scan Now</button><button onclick="load()">↻ Refresh</button></div>
-</section>
+  <section class="hero">
+    <div class="hero-row">
+      <div><h2>Market Intelligence</h2><p id="scanText">Waiting for live market data...</p></div>
+      <div class="controls">
+        <button id="scanBtn" onclick="scanNow()">↻ Scan Now</button>
+        <button class="secondary" onclick="loadData()">↻ Refresh</button>
+      </div>
+    </div>
+  </section>
 
-<section class="card"><div class="title">Live Pair Signals</div><div id="pairs"><div class="small">Loading signals...</div></div></section>
+  <div class="overview">
+    <div class="stat"><span>Last Scan</span><strong id="lastScan">—</strong></div>
+    <div class="stat"><span>Market</span><strong id="marketStatus">—</strong></div>
+    <div class="stat"><span>Alerts</span><strong id="alertsStatus">—</strong></div>
+    <div class="stat"><span>API</span><strong id="apiStatus">—</strong></div>
+  </div>
 
-<section class="card"><div class="title">High-Impact News Protection</div><div id="news"><div class="small">Loading news protection...</div></div></section>
-
-<section class="card full"><div class="title">5M Entry Confirmation</div>
-<div class="analysis">
-<div class="item"><b>1. Liquidity Sweep</b><br><span>Wait for price to take liquidity before chasing a move.</span></div>
-<div class="item"><b>2. BOS / CHoCH</b><br><span>Require a structure shift confirming direction.</span></div>
-<div class="item"><b>3. Retracement</b><br><span>Prefer a controlled pullback rather than the first spike.</span></div>
-<div class="item"><b>4. FVG</b><br><span>Use the fair value gap/retest area when available.</span></div>
-</div></section>
-
-<section class="card full"><div class="title">Bot Response</div><pre id="raw">Waiting for /api/status...</pre></section>
+  <div class="grid" id="pairs"></div>
+  <div class="footer">Trading Cloud Monitor • Live dashboard • Verify signals on your chart before trading</div>
 </div>
 
 <script>
-const $=id=>document.getElementById(id);
-function fmt(v){if(v===null||v===undefined||v==='')return '—';return typeof v==='number'?v.toFixed(5):v}
-function signalClass(s){s=String(s||'WAIT').toUpperCase();return s==='BUY'?'buy':s==='SELL'?'sell':s==='OFFLINE'?'offline':'wait'}
+const $ = id => document.getElementById(id);
+
+function fmt(v){ return v === null || v === undefined || v === "" ? "—" : v; }
+function trendClass(v){
+  const s=String(v||"").toUpperCase();
+  if(s.includes("BULL")) return "bull";
+  if(s.includes("BEAR")) return "bear";
+  if(s.includes("NEUTRAL") || s.includes("WAIT")) return "neutral";
+  return "unknown";
+}
+function esc(v){
+  return String(v ?? "—").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+function formatTime(v){
+  if(!v) return "—";
+  try{return new Date(v).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit"});}
+  catch{return v}
+}
+function signalClass(s){return s==="BUY"?"buy":s==="SELL"?"sell":"wait"}
+
+function reasonFor(p){
+  if(p.status==="BUY") return "BUY confirmation detected from the current strategy.";
+  if(p.status==="SELL") return "SELL confirmation detected from the current strategy.";
+  if(p.newsProtection?.active) return p.newsProtection.message || "News protection is active.";
+  if(p.analysis?.extended) return "Price has extended away from the recent reference. Waiting for a pullback.";
+  const h12=p.timeframes?.h12?.trend, h1=p.timeframes?.h1?.trend, m5=p.timeframes?.m5?.trend;
+  if(h12 && h1 && m5 && h12!=="BULLISH" && h12!=="BEARISH") return "12H is neutral, so there is no higher-timeframe directional confirmation yet.";
+  if(h12 && h1 && m5 && ((h12==="BULLISH"&&h1==="BEARISH")||(h12==="BEARISH"&&h1==="BULLISH"))) return "12H and 1H are pointing in different directions.";
+  if(h1 && m5 && ((h1==="BULLISH"&&m5==="BEARISH")||(h1==="BEARISH"&&m5==="BULLISH"))) return "1H and 5M are not aligned for a clean entry.";
+  return p.message || "Waiting for stronger confirmation.";
+}
+
 function pairCard(p){
- const s=String(p.status||p.signal||'WAIT').toUpperCase(),a=p.analysis||{};
- return `<div class="pair">
- <div class="pairtop"><div class="name">${p.pair||'—'}</div><div class="signal ${signalClass(s)}">${s}</div></div>
- <div class="metrics">
- <div class="metric"><b>${fmt(p.entry||p.price)}</b><span>ENTRY</span></div>
- <div class="metric"><b>${fmt(p.stopLoss)}</b><span>STOP LOSS</span></div>
- <div class="metric"><b>${fmt(p.takeProfit)}</b><span>TAKE PROFIT</span></div>
- <div class="metric"><b>${p.score??'—'}/5</b><span>SCORE</span></div></div>
- <div class="small" style="margin-top:10px">${p.message||p.detail||'No confirmed setup yet.'}</div>
- ${a.trend||a.rsi||a.bos||a.choch||a.liquidity||a.fvg||a.retracement?`<div class="analysis" style="margin-top:10px">
- <div class="item"><span>12H</span><br>${a.trend12h||a.trend||'—'}</div>
- <div class="item"><span>1H</span><br>${a.trend1h||'—'}</div>
- <div class="item"><span>SMC</span><br>${a.bos||a.choch||a.structure||'—'}</div>
- <div class="item"><span>FVG / Retracement</span><br>${a.fvg||'—'} · ${a.retracement||'—'}</div>
- </div>`:''}</div>`
+  const s=String(p.status||"WAIT").toUpperCase();
+  const h12=p.timeframes?.h12||{}, h1=p.timeframes?.h1||{}, m5=p.timeframes?.m5||{};
+  const a=p.analysis||{}, n=p.newsProtection||{};
+  return `<article class="card">
+    <div class="card-head">
+      <div class="pair">${esc(p.emoji)} ${esc(p.label||p.symbol)}</div>
+      <div class="updated">${formatTime(p.updated)}</div>
+    </div>
+    <div class="signal">
+      <div><div class="big ${signalClass(s)}">${s==="BUY"?"🟢 BUY":s==="SELL"?"🔴 SELL":"🟡 WAIT"}</div><div class="score">Signal state</div></div>
+      <div class="score">SCORE<br><b>${esc(p.score)}/5</b></div>
+    </div>
+    <div class="metrics">
+      <div class="metric"><span>Price</span><strong>${fmt(p.price)}</strong></div>
+      <div class="metric"><span>Entry</span><strong>${fmt(p.entry)}</strong></div>
+      <div class="metric"><span>Stop Loss</span><strong>${fmt(p.stopLoss)}</strong></div>
+      <div class="metric"><span>Take Profit</span><strong>${fmt(p.takeProfit)}</strong></div>
+      <div class="metric"><span>Risk / Reward</span><strong>${fmt(p.riskReward)}</strong></div>
+      <div class="metric"><span>5M RSI</span><strong>${fmt(m5.rsi)}</strong></div>
+    </div>
+
+    <div class="section-title">Timeframe Alignment</div>
+    <div class="tf">
+      <div class="tfbox"><div class="label">12H BIAS</div><div class="trend ${trendClass(h12.trend)}">${esc(h12.trend)}</div></div>
+      <div class="tfbox"><div class="label">1H CONFIRMATION</div><div class="trend ${trendClass(h1.trend)}">${esc(h1.trend)}</div></div>
+      <div class="tfbox"><div class="label">5M ENTRY</div><div class="trend ${trendClass(m5.trend)}">${esc(m5.trend)}</div></div>
+    </div>
+
+    <div class="section-title">SMC / Price Action</div>
+    <div class="analysis">
+      <div class="item"><span>Structure</span><b>${esc(a.structure)}</b></div>
+      <div class="item"><span>BOS</span><b>${esc(a.bos)}</b></div>
+      <div class="item"><span>CHoCH</span><b>${esc(a.choch)}</b></div>
+      <div class="item"><span>Liquidity</span><b>${esc(a.liquidity)}</b></div>
+      <div class="item"><span>FVG</span><b>${esc(a.fvg)}</b></div>
+      <div class="item"><span>Retracement</span><b>${a.retracement?"YES":"NO"}</b></div>
+      <div class="item"><span>Location</span><b>${esc(a.location)}</b></div>
+      <div class="item"><span>Extended</span><b>${a.extended?"YES":"NO"}</b></div>
+    </div>
+
+    ${n.active ? `<div class="news"><strong>⚠ NEWS PROTECTION • ${esc(n.phase)}</strong><div>${esc(n.message)}${n.event?.title ? " • "+esc(n.event.title):""}</div></div>` : ""}
+    <div class="reason"><b>WHY ${s}?</b><br>${esc(reasonFor(p))}</div>
+  </article>`;
 }
-async function load(){
- try{
-  const r=await fetch('/api/status',{cache:'no-store'}),d=await r.json();
-  $('raw').textContent=JSON.stringify(d,null,2);
-  $('online').textContent=d.online?'● ONLINE':'● OFFLINE';$('online').className='pill '+(d.online?'on':'warn');
-  $('market').textContent=d.marketOpen?'● MARKET OPEN':'● MARKET CLOSED';$('market').className='pill '+(d.marketOpen?'on':'warn');
-  $('lastScan').textContent=d.lastScan?new Date(d.lastScan).toLocaleTimeString():'—';
-  $('updated').textContent=new Date().toLocaleTimeString();
-  $('pairCount').textContent=Object.keys(d.pairs||{}).length;
-  $('apiStatus').textContent=d.api?.lastError?'ERROR':'OK';
-  $('pairs').innerHTML=Object.values(d.pairs||{}).map(pairCard).join('')||'<div class="small">No pair data.</div>';
-  renderNews(d.newsProtection,d.news||d.newsEvents);
- }catch(e){$('online').textContent='● DASHBOARD ERROR';$('online').className='pill warn';$('raw').textContent=e.message}
+
+async function loadData(){
+  try{
+    const r=await fetch("/api/status",{cache:"no-store"});
+    const d=await r.json();
+    $("onlineText").textContent=d.online?"ONLINE":"OFFLINE";
+    $("onlineDot").style.background=d.online?"var(--green)":"var(--red)";
+    $("lastScan").textContent=formatTime(d.lastScan);
+    $("marketStatus").textContent=d.marketOpen?"OPEN":"CLOSED";
+    $("alertsStatus").textContent=d.alerts?"ON":"OFF";
+    $("apiStatus").textContent=d.api?.status==="CONFIGURED"?"READY":(d.api?.status||"—");
+    $("scanText").textContent=d.lastScan ? `Last scan ${formatTime(d.lastScan)} • ${d.confirmation||"12H + 1H + 5M"}` : "Waiting for first scan...";
+    $("pairs").innerHTML=Object.values(d.pairs||{}).map(pairCard).join("");
+  }catch(e){
+    $("onlineText").textContent="OFFLINE";
+    $("onlineDot").style.background="var(--red)";
+    $("scanText").textContent="Unable to reach the monitor API.";
+  }
 }
-function renderNews(n,events){
- let phase=n?.phase||n?.status||'CLEAR',text=n?.message||'No active high-impact news protection.';
- if(events&&Array.isArray(events)&&events.length)text+=' '+events.length+' calendar event(s) loaded.';
- $('news').innerHTML=`<div class="news"><div class="phase">${phase}</div><div class="small">${text}</div></div><div class="small">Flow: BEFORE NEWS → WAIT · IMMEDIATELY AFTER → WAIT · AFTER MARKET SETTLES → 5M liquidity sweep → BOS/CHoCH → retracement/FVG → entry.</div>`;
+
+async function scanNow(){
+  const b=$("scanBtn"); b.disabled=true; b.textContent="Scanning…";
+  try{await fetch("/api/scan",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"}); await loadData();}
+  catch(e){}
+  finally{b.disabled=false;b.textContent="↻ Scan Now";}
 }
-async function scanNow(){try{await fetch('/api/scan',{method:'POST'});setTimeout(load,1200)}catch(e){alert('Scan request failed: '+e.message)}}
-load();setInterval(load,15000);
+
+loadData();
+setInterval(loadData,15000);
 </script>
 </body>
 </html>
